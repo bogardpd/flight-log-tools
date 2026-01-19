@@ -36,18 +36,17 @@ Imports flight records by parsing airline boarding pass files and creating corre
 
 Typical use cases:
 
-* Processing saved Apple Wallet or PDF boarding passes
-* Backfilling flights where structured flight data is otherwise unavailable
+* Processing saved Apple Wallet .pkpass boarding passes
 
 Example:
 
 ```bash
-python flight_log.py import-boarding-passes --input-dir ./boarding_passes
+python flight_log.py import-boarding-passes
 ```
 
 ---
 
-### `import-recent-flights`
+### `import-recent`
 
 Retrieves recent flights from the Flight Historian API and creates corresponding records in the local flight log.
 
@@ -59,12 +58,12 @@ This command is intended to:
 Example:
 
 ```bash
-python flight_log.py import-recent-flights --since 2024-01-01
+python flight_log.py import-recent
 ```
 
 ---
 
 ## Data model notes
 
-* The flight log is stored as a GeoPackage
-* Individual flights may or may not have geometry (e.g., older flights without known tracks)
+* The flight log is stored as a GeoPackage.
+* Individual flights may or may not have geometry (e.g., older flights without known tracks).
