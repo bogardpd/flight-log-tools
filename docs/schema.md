@@ -37,4 +37,4 @@ The `airports` table contains records of airports that `flights` have used.
 | `iata_code` | TEXT | IATA code for the airport (e.g. `ATL`). |
 | `icao_code` | TEXT | ICAO code for the airport (e.g. `KATL`). |
 | `city` | TEXT | The primary city or region the airport serves (e.g. `Atlanta`, `Dallas/Fort Worth`). If this is ambiguous, include the airport name in parentheses (e.g. `Chicago (O’Hare)`, `Chicago (Midway)`). |
-| `country` | TEXT | The country the airport is located in, in ISO 3166-1 alpha-2 format (e.g. `US`) |
+| `country` | TEXT | The country the airport is located in, in ISO 3166-1 alpha-2 format (e.g. `US`). |
