@@ -61,6 +61,11 @@ Example:
 python flight_log.py import-recent
 ```
 
+> [!IMPORTANT]
+> This script requires a Flight Historian API key to be set as an environment variable or saved in a **.env** file:
+>
+> `API_KEY_FLIGHT_HISTORIAN=yourkey`
+
 ---
 
 ## Data model notes
