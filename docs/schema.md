@@ -17,7 +17,7 @@ The `flights` table contains records of individual flights.
 | `departure_utc` | DATETIME | UTC departure time for the flight. Prefer gate out time over wheels off (up) time. Prefer actual time over estimated time over scheduled time. |
 | `arrival_utc` | DATETIME | *Optional.* UTC arrival time for the flight. Prefer gate in time over wheels on (down) time. Prefer actual time over estimated time over scheduled time. |
 | `fa_flight_id` | TEXT | *Optional.* FlightAware AeroAPI ID string. |
-| `identifier` | TEXT | *Optional.* Identifer string for the flight (e.g. `AAL1234`).
+| `identifier` | TEXT | *Optional.* Identifier string for the flight (e.g. `AAL1234`).
 | `origin_icao` | TEXT | ICAO code for the origin airport. |
 | `destination_icao` | TEXT | ICAO code for the destination airport. |
 | `fh_id` | INT (64 bit) | *Optional.* Flight Historian flight record ID. |
