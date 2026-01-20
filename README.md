@@ -26,8 +26,6 @@ To see help for a specific command:
 python flight_log.py <command> --help
 ```
 
----
-
 ## Commands
 
 ### `import-boarding-passes`
@@ -43,8 +41,6 @@ Example:
 ```bash
 python flight_log.py import-boarding-passes
 ```
-
----
 
 ### `import-recent`
 
@@ -65,8 +61,6 @@ python flight_log.py import-recent
 > This script requires a Flight Historian API key to be set as an environment variable or saved in a **.env** file:
 >
 > `API_KEY_FLIGHT_HISTORIAN=yourkey`
-
----
 
 ## Data model notes
 
