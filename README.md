@@ -5,6 +5,30 @@
 
 A small collection of command-line tools for working with a personal flight log stored in a GeoPackage.
 
+## Setup
+
+### Editable Installation
+
+If you want to install this module locally and access it from any folder, while still allowing the scripts to be edited after install, perform a pip editable installation:
+
+```bash
+cd path/to/module
+python -m pip install -e .
+```
+
+### Environment Variables
+
+Many of these scripts interact with [AeroAPI](https://www.flightaware.com/commercial/aeroapi/) to get flight data. You will need to get an AeroAPI API key and set it as an environment variable:
+
+```AEROAPI_API_KEY=yourkey```
+
+> [!IMPORTANT]
+> When these scripts call AeroAPI with your API key, you will incur AeroAPI per-query fees as appropriate for your AeroAPI account.
+
+The [`import-recent`](#import-recent) script also requires a [Flight Historian](https://www.flighthistorian.com) API key to be set as an environment variable:
+
+`FLIGHT_HISTORIAN_API_KEY=yourkey`
+
 ## Basic usage
 
 > [!NOTE]
@@ -56,11 +80,6 @@ Example:
 ```bash
 python -m flight_log_tools import-recent
 ```
-
-> [!IMPORTANT]
-> This script requires a Flight Historian API key to be set as an environment variable:
->
-> `FLIGHT_HISTORIAN_API_KEY=yourkey`
 
 ## Data model notes
 
