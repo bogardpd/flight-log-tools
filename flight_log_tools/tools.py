@@ -2,7 +2,6 @@
 
 import os
 import requests
-from dotenv import load_dotenv
 
 def import_boarding_passes():
     """Imports digital boarding passes."""
@@ -11,11 +10,10 @@ def import_boarding_passes():
 def import_recent():
     """Finds recent flights on Flight Historian API and imports them."""
     print("Importing Flight Historian recent flights...")
-    load_dotenv()
-    api_key_fh = os.getenv("API_KEY_FLIGHT_HISTORIAN")
+    api_key_fh = os.getenv("FLIGHT_HISTORIAN_API_KEY")
     if api_key_fh is None:
         raise KeyError(
-            "Environment variable API_KEY_FLIGHT_HISTORIAN is missing."
+            "Environment variable FLIGHT_HISTORIAN_API_KEY is missing."
         )
     headers = {"api-key": api_key_fh}
     url = "https://www.flighthistorian.com/api/recent_flights"

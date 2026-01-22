@@ -58,9 +58,9 @@ python -m flight_log_tools import-recent
 ```
 
 > [!IMPORTANT]
-> This script requires a Flight Historian API key to be set as an environment variable or saved in a **.env** file in the project’s root folder:
+> This script requires a Flight Historian API key to be set as an environment variable:
 >
-> `API_KEY_FLIGHT_HISTORIAN=yourkey`
+> `FLIGHT_HISTORIAN_API_KEY=yourkey`
 
 ## Data model notes
 
