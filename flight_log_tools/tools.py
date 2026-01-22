@@ -3,7 +3,7 @@
 import os
 import requests
 
-from flight_log_tools import aeroapi
+from flight_log_tools.aeroapi import AeroAPIWrapper
 
 def import_boarding_passes():
     """Imports digital boarding passes."""
@@ -11,7 +11,7 @@ def import_boarding_passes():
 
 def import_recent():
     """Finds recent flights on Flight Historian API and imports them."""
-    aw = aeroapi.AeroAPIWrapper()
+    aw = AeroAPIWrapper()
     api_key_fh = os.getenv("FLIGHT_HISTORIAN_API_KEY")
     if api_key_fh is None:
         raise KeyError(
