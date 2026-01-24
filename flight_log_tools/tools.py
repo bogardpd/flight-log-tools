@@ -7,6 +7,11 @@ import geopandas as gpd
 
 from flight_log_tools.aeroapi import AeroAPIWrapper
 
+def add_fa_flight_id(ident):
+    """Gets flight info for an ident and saves flight(s) to log."""
+    aw = AeroAPIWrapper()
+    aw.add_flight(ident)
+
 def import_boarding_passes():
     """Imports digital boarding passes."""
     print("Importing digital boarding passes...")
@@ -47,5 +52,4 @@ def import_recent():
         if flight['fh_id'] in current_fh_ids:
             print("This flight is already in the log.")
             continue
-        result = aw.get_flights(flight['fa_flight_id'])
-        print(result)
+        aw.add_flight(flight['fa_flight_id'])

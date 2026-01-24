@@ -27,6 +27,7 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `geom_source` | TEXT | *Optional.* Source of geometry data for this flight (e.g. `FlightAware`, `GPS`).
 | `origin_airport_fid` | INT (64 bit) | Foreign key referencing the origin airport on the `airports` table.
 | `destination_airport_fid` | INT (64 bit) | Foreign key referencing the destination airport on the `airports` table.
+| `distance_mi` | INT (64 bit) | Distance of the flight in miles. Includes taxiing (ground) distance when available.
 | `comments` | TEXT | *Optional.* Comments about the flight. |
 
 ### airports (Point)

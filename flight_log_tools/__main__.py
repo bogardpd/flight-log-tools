@@ -9,6 +9,17 @@ if __name__ == "__main__":
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    # add-fa-flight-id
+    parser_add_fa_flight_id = subparsers.add_parser(
+        "add-fa-flight-id",
+        help="Look up a flight by fa_flight_id and add it to the log"
+    )
+    parser_add_fa_flight_id.add_argument(
+        "fa_flight_id",
+        help="AeroAPI fa_flight_id",
+        type=str,
+    )
+
     # import-boarding-passes
     parser_import_boarding_passes = subparsers.add_parser(
         "import-boarding-passes",
@@ -24,6 +35,8 @@ if __name__ == "__main__":
     # Parse arguments
     args = parser.parse_args()
     match args.command:
+        case "add-fa-flight-id":
+            flt.add_fa_flight_id(args.fa_flight_id)
         case "import-boarding-passes":
             flt.import_boarding_passes()
         case "import-recent":

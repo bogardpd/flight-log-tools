@@ -56,6 +56,16 @@ python -m flight_log_tools <command> --help
 
 ## Commands
 
+### `add-fa-flight-id`
+
+Looks up a flight by `fa_flight_id` on AeroAPI and adds it to the flight log.
+
+Example:
+
+```bash
+python -m flight_log_tools fa_flight_id UAL1234-1234567890-airline-0123
+```
+
 ### `import-boarding-passes`
 
 Imports flight records by parsing airline boarding pass files and creating corresponding entries in the flight log GeoPackage.
