@@ -7,6 +7,20 @@ These scripts use a [GeoPackage file](https://www.geopackage.org/) containing fl
 > [!NOTE]
 > Columns use the data types specified in the GeoPackage Encoding Standards [Table 1. GeoPackage Data Types](https://www.geopackage.org/spec/#table_column_data_types), and geometry types specified in [Annex G: Geometry Types (Normative)](https://www.geopackage.org/spec/#geometry_types). Optional fields must be null when unused.
 
+### aircraft_types (No Geometry)
+
+The `aircraft_types` table contains records of aircraft types that `flights` have used.
+
+| Column | Data Type | Description |
+|--------|-----------|-------------|
+| `fid` | INT (64 bit) | Primary key for the airline record. |
+| `manufacturer` | TEXT | The manufacturer of the aircraft type (e.g. `Boeing`).
+| `name` | TEXT | The name of the aircraft type (e.g. `737-800`) |
+| `icao_code` | TEXT | ICAO code for the airline (e.g. `B738`). |
+| `iata_code` | TEXT | IATA code for the airline (e.g. `738`). |
+| `family` | TEXT | Family the aircraft type belongs to (e.g. `Boeing 737`). Used for grouping aircraft types. |
+| `category` | TEXT | `wide_body`, `narrow_body`, `regional_jet`, or `turboprop` |
+
 ### airlines (No Geometry)
 
 The `airlines` table contains records of airlines that `flights` have used as their marketing carrier, operator, or codeshare.
@@ -14,7 +28,7 @@ The `airlines` table contains records of airlines that `flights` have used as th
 | Column | Data Type | Description |
 |--------|-----------|-------------|
 | `fid` | INT (64 bit) | Primary key for the airline record. |
-| `name` | TEXT | The name of the airline. |
+| `name` | TEXT | The name of the airline (e.g. `American`). |
 | `icao_code` | TEXT | ICAO code for the airline (e.g. `AAL`). |
 | `iata_code` | TEXT | IATA code for the airline (e.g. `AA`). |
 | `numeric_code` | TEXT | *Optional.* The three-digit numeric code for the airline (e.g. `001`) |
@@ -57,16 +71,17 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `fid`  | INT (64 bit) | Primary key for the flight record. |
 | `departure_utc` | DATETIME | UTC departure time for the flight. Prefer gate out time over wheels off (up) time. Prefer actual time over estimated time over scheduled time. |
 | `arrival_utc` | DATETIME | *Optional.* UTC arrival time for the flight. Prefer gate in time over wheels on (down) time. Prefer actual time over estimated time over scheduled time. |
-| `airline_fid` | INT (64 bit) | Foreign key referencing the marketing airline on the `airlines` table. (See [Airline Types](#airline-types).) |
+| `airline_fid` | INT (64 bit) | Foreign key referencing the marketing airline on the [`airlines`](#airlines-no-geometry) table. (See [Airline Types](#airline-types).) |
 | `flight_number` | TEXT | The marketing airline's flight number for the flight. (See [Airline Types](#airline-types).) |
-| `origin_airport_fid` | INT (64 bit) | Foreign key referencing the origin airport on the `airports` table.
-| `destination_airport_fid` | INT (64 bit) | Foreign key referencing the destination airport on the `airports` table.
-| `operator_fid` | INT (64 bit) | Foreign key referencing the marketing airline on the `airlines` table. May or may not be the same as the `airline_fid`. (See [Airline Types](#airline-types).) |
-| `codeshare_airline_fid` | INT (64 bit) | *Optional.* Foreign key referencing the codeshare airline on the `airlines` table. (See [Airline Types](#airline-types).) |
+| `origin_airport_fid` | INT (64 bit) | Foreign key referencing the origin airport on the [`airports`](#airports-point) table. |
+| `destination_airport_fid` | INT (64 bit) | Foreign key referencing the destination airport on the [`airports`](#airports-point) table. |
+| `aircraft_type_fid` | INT (64 bit) | Foreign key referencing the aircraft type on the [`aircraft_types`](#aircraft_types-no-geometry) table. |
+| `operator_fid` | INT (64 bit) | Foreign key referencing the marketing airline on the [`airlines`](#airlines-no-geometry) table. May or may not be the same as the `airline_fid`. (See [Airline Types](#airline-types).) |
+| `codeshare_airline_fid` | INT (64 bit) | *Optional.* Foreign key referencing the codeshare airline on the [`airlines`](#airlines-no-geometry) table. (See [Airline Types](#airline-types).) |
 | `codeshare_flight_number` | TEXT | *Optional.* The codeshare airline's flight number for the flight. (See [Airline Types](#airline-types).) |
 | `fa_flight_id` | TEXT | *Optional.* FlightAware AeroAPI ID string. |
 | `fh_id` | INT (64 bit) | *Optional.* Flight Historian flight record ID. |
 | `fa_json` | TEXT | *Optional.* Response string from AeroAPI flight lookup, in JSON format.
 | `geom_source` | TEXT | *Optional.* Source of geometry data for this flight (e.g. `FlightAware`, `GPS`).
-| `distance_mi` | INT (64 bit) | Distance of the flight in miles. Includes taxiing (ground) distance when available.
+| `distance_mi` | INT (64 bit) | *Optional.* Distance of the flight in miles. Includes taxiing (ground) distance when available.
 | `comments` | TEXT | *Optional.* Comments about the flight. |
