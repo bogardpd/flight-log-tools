@@ -21,6 +21,7 @@ def append_flights(record_gdf):
     existing = gpd.read_file(
         flight_log,
         layer=layer,
+        engine="pyogrio",
         rows=0,
     )
     existing_cols = list(existing.columns)
@@ -72,6 +73,7 @@ def find_airport_fid(code):
     airports = gpd.read_file(
         flight_log,
         layer=layer,
+        engine="pyogrio",
         fid_as_index=True
     )
     # Filter out defunct airports. This is helpful in situations where
