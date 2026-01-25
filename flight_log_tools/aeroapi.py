@@ -71,11 +71,15 @@ class AeroAPIWrapper:
             geom_mls = None
             track_dist_mi = None
         else:
+            positions = [
+                p for p in track_json['positions']
+                if p['update_type'] != "O"
+            ] # Exclude oceanic update types which cause noisy tracks
             track_ls = LineString([Point(
                 p['longitude'],
                 p['latitude'],
                 p['altitude']*30.48, # Convert 100s of feet to meters
-            ) for p in track_json['positions']])
+            ) for p in positions])
             geom_mls = AeroAPIWrapper.split_antimeridian(track_ls)
             track_dist_mi = int(track_json['actual_distance'])
 
