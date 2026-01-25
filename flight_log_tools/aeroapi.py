@@ -92,8 +92,6 @@ class AeroAPIWrapper:
             'destination_airport_fid': fl.find_airport_fid(
                 flight['destination']['code']
             ),
-            'origin_icao': flight['origin']['code'],
-            'destination_icao': flight['destination']['code'],
             'fa_json': json.dumps(flight),
             'geom_source': "FlightAware",
             'distance_mi': track_dist_mi,

@@ -20,8 +20,6 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `arrival_utc` | DATETIME | *Optional.* UTC arrival time for the flight. Prefer gate in time over wheels on (down) time. Prefer actual time over estimated time over scheduled time. |
 | `fa_flight_id` | TEXT | *Optional.* FlightAware AeroAPI ID string. |
 | `identifier` | TEXT | *Optional.* Identifier string for the flight (e.g. `AAL1234`).
-| `origin_icao` | TEXT | ICAO code for the origin airport. |
-| `destination_icao` | TEXT | ICAO code for the destination airport. |
 | `fh_id` | INT (64 bit) | *Optional.* Flight Historian flight record ID. |
 | `fa_json` | TEXT | *Optional.* Response string from AeroAPI flight lookup, in JSON format.
 | `geom_source` | TEXT | *Optional.* Source of geometry data for this flight (e.g. `FlightAware`, `GPS`).
