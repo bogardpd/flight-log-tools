@@ -49,9 +49,9 @@ class AeroAPIWrapper:
         flights = json_response['flights']
         if len(flights) == 0:
             print(
-                colorama.Fore.YELLOW,
-                f"AeroAPI returned 0 flights for {ident}.",
-                colorama.Style.RESET_ALL,
+                colorama.Fore.YELLOW
+                + f"AeroAPI returned 0 flights for {ident}."
+                + colorama.Style.RESET_ALL
             )
             return
 
@@ -86,6 +86,12 @@ class AeroAPIWrapper:
             'arrival_utc': self.__arr_utc(flight),
             'fa_flight_id': flight['fa_flight_id'],
             'identifier': flight['ident'],
+            'origin_airport_fid': fl.find_airport_fid(
+                flight['origin']['code']
+            ),
+            'destination_airport_fid': fl.find_airport_fid(
+                flight['destination']['code']
+            ),
             'origin_icao': flight['origin']['code'],
             'destination_icao': flight['destination']['code'],
             'fa_json': json.dumps(flight),

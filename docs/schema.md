@@ -41,3 +41,4 @@ The `airports` table contains records of airports that `flights` have used.
 | `icao_code` | TEXT | ICAO code for the airport (e.g. `KATL`). |
 | `city` | TEXT | The primary city or region the airport serves (e.g. `Atlanta`, `Dallas/Fort Worth`). If this is ambiguous, include the airport name in parentheses (e.g. `Chicago (O’Hare)`, `Chicago (Midway)`). |
 | `country` | TEXT | The country the airport is located in, in ISO 3166-1 alpha-2 format (e.g. `US`). |
+| `is_defunct` | BOOLEAN | False if an airport is no longer in use, true otherwise. When looking up airports, defunct airports will be ignored. This is helpful in situations where current airports use the same codes as an old airport (for example, the modern Denver airport and the old Denver Stapleton both use `KDEN`/`DEN`.) |
