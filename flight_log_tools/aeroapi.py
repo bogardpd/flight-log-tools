@@ -82,10 +82,7 @@ class AeroAPIWrapper:
             geom_mls = None
             track_dist_mi = None
         else:
-            positions = [
-                p for p in track_json['positions']
-                if p['update_type'] != "O"
-            ] # Exclude oceanic update types which cause noisy tracks
+            positions = track_json['positions']
             track_ls = LineString([Point(
                 p['longitude'],
                 p['latitude'],
