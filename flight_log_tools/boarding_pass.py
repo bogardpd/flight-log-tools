@@ -109,7 +109,9 @@ class BoardingPass():
     def __init__(self, bcbp_str):
         self.bcbp_str = bcbp_str
         self.data_len = len(self.bcbp_str)
-        self.raw = self.__parse()
+        self.raw = {}
+        self.valid = True
+        self.__parse()
 
     def __str__(self):
         return self.bcbp_str.replace(" ", "·")
@@ -120,148 +122,143 @@ class BoardingPass():
         cursor = 0
 
         # MANDATORY UNIQUE
-        mand_u_parse = self.__parse_mand_u()
-        mand_u = mand_u_parse['data']
+        mand_u_len = self.__parse_mand_u()
         try:
-            self.leg_count = int(mand_u['leg_count'])
+            self.leg_count = int(self.raw['leg_count'])
         except ValueError:
-            return None
+            self.valid = False
+            return
         # Set offset to end of mand_u block.
-        cursor = mand_u_parse['length']
+        cursor = mand_u_len
 
-        cond_u = None
         legs = []
-        for leg in range(self.leg_count):
+        self.raw['legs'] = []
+        for leg_index in range(self.leg_count):
+            self.raw['legs'].append({})
             leg_data = {}
             # MANDATORY REPEATED
-            mand_r_parse = self.__parse_mand_r(cursor)
-            if mand_r_parse is None:
-                return None
-            mand_r = mand_r_parse['data']
-            leg_data['mandatory'] = mand_r
+            mand_r_len = self.__parse_mand_r(cursor, leg_index)
+
             try:
                 cond_air_len = int(
-                    mand_r['conditional_airline_length'], 16
+                    self.raw['legs'][leg_index]['conditional_airline_length'],
+                    16,
                 )
             except ValueError:
-                return None
+                self.valid = False
+                return
             # Set cursor to end of this leg's mand_r block.
-            cursor += mand_r_parse['length']
+            cursor += mand_r_len
             leg_end = cursor + cond_air_len
 
             if cond_air_len == 0:
                 # No conditional or airline items
                 continue
 
-            if leg == 0:
+            if leg_index == 0:
                 # CONDITIONAL UNIQUE
-                cond_u_parse = self.__parse_cond_u(cursor)
-                if cond_u_parse is None:
-                    return None
-                cond_u = cond_u_parse['data']
-                cursor += cond_u_parse['length']
-                if cond_air_len == cond_u_parse['length']:
+                cond_u_len = self.__parse_cond_u(cursor)
+                if cond_u_len is None:
+                    return
+                cursor += cond_u_len
+                if cond_air_len == cond_u_len:
                     # No repeated conditional or airline items
                     continue
 
             # CONDITIONAL REPEAT
-            cond_r_parse = self.__parse_cond_r(cursor)
-            if cond_r_parse is None:
-                return None
-            cond_r = cond_r_parse['data']
-            leg_data['conditional'] = cond_r
+            cond_r_len = self.__parse_cond_r(cursor, leg_index)
+            if cond_r_len is None:
+                return
             # Set cursor to end of this leg's cond_r block:
-            cursor += cond_r_parse['length']
+            cursor += cond_r_len
 
             if cursor > leg_end:
                 # Boarding pass data had invalid lengths.
-                return None
+                return
             if cursor < leg_end:
                 # Airline data exists.
-                leg_data['airline'] = self.__parse_airline(cursor, leg_end)
+                self.__parse_airline(cursor, leg_end, leg_index)
 
             # Set cursor to leg end and save leg data.
             cursor = leg_end
             legs.append(leg_data)
 
-        # SECURITY
-        security = None
         if cursor > self.data_len:
             # Boarding pass data had invalid lengths.
+            self.valid = False
             return None
+
+        # SECURITY
         if cursor < self.data_len:
-            security_parse = self.__parse_security(cursor)
-            if security_parse is None:
+            security_len = self.__parse_security(cursor)
+            if security_len is None:
                 return None
-            security = security_parse['data']
             # Set cursor to end of security.
-            cursor += security_parse['length']
+            cursor += security_len
 
         # LEFTOVER UNKNOWN DATA
-        unknown = None
         if cursor < self.data_len:
-            unknown = {'unknown': self.bcbp_str[cursor:self.data_len]}
+            self.raw['unknown'] = self.bcbp_str[cursor:self.data_len]
 
-        # Build fields dict.
-        fields = {}
-        fields['mandatory'] = mand_u
-        if cond_u is not None:
-            fields['conditional'] = cond_u
-        fields['legs'] = legs
-        if security is not None:
-            fields['security'] = security
-        if unknown is not None:
-            fields['unknown'] = unknown
-        return fields
+        return
 
     def __parse_mand_u(self):
-        """Parses the mandatory unique block."""
+        """
+        Parses the mandatory unique block.
+
+        Returns the length of the block.
+        """
         raw = self.bcbp_str
-        mand_u = {}
         fields = _BCBP_FIELDS['mandatory_unique']
         lengths = [v['length'] for v in fields]
         for i, f in enumerate(fields):
             start = sum(lengths[0:i])
             stop = start + f['length']
-            mand_u[f['key']] = raw[start:stop]
-        return {'length': sum(lengths), 'data': mand_u}
+            self.raw[f['key']] = raw[start:stop]
+        return sum(lengths)
 
-    def __parse_mand_r(self, offset):
-        """Parses a mandatory repeat block starting at the offset."""
+    def __parse_mand_r(self, offset, leg_index):
+        """
+        Parses a mandatory repeat block starting at the offset.
+
+        Returns the length of the block.
+        """
         raw = self.bcbp_str
-        mand_r = {}
         fields = _BCBP_FIELDS['mandatory_repeated']
         lengths = [v['length'] for v in fields]
         for i, f in enumerate(fields):
             start = offset + sum(lengths[0:i])
             stop = start + f['length']
-            mand_r[f['key']] = raw[start:stop]
-        return {'length': sum(lengths), 'data': mand_r}
+            self.raw['legs'][leg_index][f['key']] = raw[start:stop]
+        return sum(lengths)
 
     def __parse_cond_u(self, offset):
         """Parses a conditional unique block starting at offset."""
         return self.__parse_cond(
             offset,
+            0, # Conditional unique is only included in the first leg
             _BCBP_FIELDS['conditional_unique'],
             'following_unique_length',
         )
 
-    def __parse_cond_r(self, offset):
+    def __parse_cond_r(self, offset, leg_index):
         """Parses a conditional repeat block starting at offset."""
         return self.__parse_cond(
             offset,
+            leg_index,
             _BCBP_FIELDS['conditional_repeated'],
             'following_repeated_length',
         )
 
-    def __parse_cond(self, offset, fields, following_length_field_id):
+    def __parse_cond(self, offset, leg_index, fields, following_length_key):
         """
         Parses a conditional block.
 
         Conditional blocks have a field (identified by
-        following_length_field_id) indicating the length of the block
-        after it. Fields are populated in order until the length is
-        reached.
+        following_length_key) indicating the length of the block after
+        it. Fields are populated in order until the length is reached.
+
+        Returns the length of the block.
         """
         raw = self.bcbp_str
         cond = {}
@@ -281,27 +278,30 @@ class BoardingPass():
                     stop = start + remaining_size
             value_str = raw[start:stop]
             cond[f['key']] = value_str
-            if f['key'] == following_length_field_id:
+            self.raw['legs'][leg_index][f['key']] = value_str
+            if f['key'] == following_length_key:
                 # Parse the following field size.
                 try:
                     fol_len = int(value_str, 16)
                     fol_offset = stop
                 except ValueError:
+                    self.valid = False
                     return None
         if fol_offset is None:
+            self.valid = False
             return None
-        return {'length': (fol_offset - offset) + fol_len, 'data': cond}
+        return fol_offset + fol_len - offset # Length
 
-    def __parse_airline(self, offset_start, offset_end):
+    def __parse_airline(self, offset_start, offset_end, leg_index):
         """Parses airline data."""
         raw = self.bcbp_str
-        field_id = _BCBP_FIELDS['airline_repeated'][0]['key']
-        return {field_id: raw[offset_start:offset_end]}
+        key = _BCBP_FIELDS['airline_repeated'][0]['key']
+        self.raw['legs'][leg_index][key] = raw[offset_start:offset_end]
+        return
 
     def __parse_security(self, offset):
         """Parses security data."""
         raw = self.bcbp_str
-        security = {}
         fields = _BCBP_FIELDS['security']
         if raw[offset:offset+1] == "^":
             # Properly formatted security data.
@@ -309,22 +309,23 @@ class BoardingPass():
             for i, f in enumerate(fields[0:3]):
                 start = offset + sum(lengths[0:i])
                 stop = start + f['length']
-                security[f['key']] = raw[start:stop]
+                self.raw[f['key']] = raw[start:stop]
             # Get security data length from field 29.
             try:
-                sec_data_len = int(security['security_data_length'], 16)
+                sec_data_len = int(self.raw['security_data_length'], 16)
             except ValueError:
+                self.valid = False
                 return None
             sec_offset = offset + sum(lengths)
             if sec_offset + sec_data_len > self.data_len:
                 sec_data_len = self.data_len - sec_offset
-            security[fields[-1]['key']] = raw[
+            self.raw[fields[-1]['key']] = raw[
                 sec_offset:sec_offset+sec_data_len
             ]
             length = (sec_offset - offset) + sec_data_len
         else:
             # Improperly formatted security data. Treat the rest of the
             # boarding pass as security data.
-            security[fields[-1]['key']] = raw[offset:self.data_len]
+            self.raw[fields[-1]['key']] = raw[offset:self.data_len]
             length = self.data_len - offset
-        return {'length': length, 'data': security}
+        return length
