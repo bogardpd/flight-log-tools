@@ -62,7 +62,7 @@ The `airports` table contains records of airports that `flights` have used.
 | `time_zone` | TEXT | IANA (tz) time zone for the airport (e.g. `America/New_York`). |
 | `is_defunct` | BOOLEAN | True if an airport is no longer in use, false otherwise. When looking up airports, defunct airports will be ignored. This is helpful in situations where current airports use the same codes as an old airport (for example, the modern Denver airport and the old Denver Stapleton both use `KDEN`/`DEN`.) |
 
-### Classes (No Geometry)
+### classes (No Geometry)
 
 The `classes` table contains definition of travel classes such as Economy and First.
 
@@ -104,3 +104,10 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `geom_source` | TEXT | *Optional.* Source of geometry data for this flight (e.g. `FlightAware`, `GPS`).
 | `fa_json` | TEXT | *Optional.* Response string from AeroAPI flight lookup, in JSON format.
 | `comments` | TEXT | *Optional.* Comments about the flight. |
+
+### routes (MultiLineString)
+
+The `routes` table contains great circle geometry for routes between pairs of [`airports`](#airports-point).
+
+> [!WARNING]
+> The routes table is automatically generated and updated. (An update can be forced with the [`update-routes`](../README.md#update-routes) command.) Do not manually edit the routes table, as any edits will be lost when routes are updated.

@@ -120,3 +120,16 @@ python -m flight_log_tools parse-bcbp "M1DOE/JOHN            EABC123 BOSJFKB6 07
 > [!IMPORTANT]
 > Since BCBP data contains spaces, be sure to place the BCBP string in quotes.
 >
+
+### `update-routes`
+
+Updates the routes table based on all routes present in the flights table. Generates great circle geometry for these routes.
+
+> [!WARNING]
+> This will overwrite the routes table, including removing routes that no longer have flights. Do not manually edit the routes table, as any edits will be lost when routes are updated.
+
+Usage:
+
+```bash
+python -m flight_log_tools update-routes
+```

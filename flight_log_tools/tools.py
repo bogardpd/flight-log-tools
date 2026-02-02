@@ -7,6 +7,7 @@ import geopandas as gpd
 
 from flight_log_tools.aeroapi import AeroAPIWrapper
 from flight_log_tools.boarding_pass import BoardingPass
+import flight_log_tools.flight_log as fl
 
 def add_fa_flight_id(ident):
     """Gets flight info for an ident and saves flight(s) to log."""
@@ -60,3 +61,7 @@ def parse_bcbp(bcbp_str):
     """Parses a Bar-Coded Boarding Pass string."""
     bp = BoardingPass(bcbp_str)
     print(bp.raw, bp.valid)
+
+def update_routes():
+    """Refreshes the routes table."""
+    fl.update_routes()

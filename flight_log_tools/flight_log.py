@@ -1,9 +1,19 @@
 """Scripts for interacting with the flight log."""
 
+# Standard imports
 import os
+import sqlite3
+from math import ceil
 
+# Third-party imports
 import colorama
 import geopandas as gpd
+import pandas as pd
+from pyproj import Geod
+from shapely.geometry import Point, LineString, MultiLineString
+
+METERS_PER_MILE = 1609.344
+METERS_BETWEEN_GC_POINTS = 100000
 
 colorama.init()
 
@@ -172,3 +182,120 @@ def find_airport_fid(code):
         + colorama.Style.RESET_ALL,
     )
     return None
+
+def update_routes():
+    """Updates the routes layer based on logged flights."""
+    con = sqlite3.connect(flight_log)
+    flights_sql = """
+        SELECT origin_airport_fid, destination_airport_fid,
+            COUNT(*) as flight_count
+        FROM flights
+        GROUP BY origin_airport_fid, destination_airport_fid
+        ORDER BY origin_airport_fid, destination_airport_fid
+    """
+    flights_df = pd.read_sql(flights_sql, con)
+    con.close()
+
+    airports = gpd.read_file(
+        flight_log,
+        layer='airports',
+        engine='pyogrio',
+        fid_as_index=True,
+    )
+
+    flights_df[['distance_mi', 'geometry']] = flights_df.apply(lambda f:
+        _great_circle_route(
+            airports.loc[f.origin_airport_fid, 'geometry'],
+            airports.loc[f.destination_airport_fid, 'geometry'],
+        ),
+        axis = 1,
+    )
+    flights_df['distance_mi'] = flights_df['distance_mi'].astype(int)
+
+    routes_gdf = gpd.GeoDataFrame(
+        flights_df,
+        geometry='geometry',
+        crs="EPSG:4326", # WGS-84
+    )
+
+    routes_gdf.to_file(
+        flight_log,
+        driver='GPKG',
+        engine='pyogrio',
+        layer='routes',
+        mode='w',
+    )
+    print(
+        f"Updated all routes in {flight_log}."
+    )
+
+def _great_circle_route(point1, point2) -> pd.Series:
+    """
+    Creates a great circle line between points.
+
+    Returns a Pandas series with distance in integer miles and a
+    MultiLineString geometry.
+    """
+    if point1 == point2:
+        # Returned to same airport. Return zero great circle distance
+        # and no geometry.
+        return pd.Series([0, None])
+    geod = Geod(ellps="WGS84")
+    _, _, dist_m = geod.inv(point1.x, point1.y, point2.x, point2.y)
+    dist_mi = int(round(dist_m / METERS_PER_MILE))
+
+    # Create a great circle LineString.
+    num_points = ceil(dist_m / METERS_BETWEEN_GC_POINTS) + 1
+    midpoints = geod.npts(
+        point1.x, point1.y,
+        point2.x, point2.y,
+        num_points - 2,
+    )
+    geom = _split_at_antimeridian(
+        LineString([point1, *midpoints, point2])
+    )
+
+    return pd.Series([dist_mi, geom])
+
+def _split_at_antimeridian(linestring) -> MultiLineString:
+    """Splits a linestring at the antimeridian (180 degrees)."""
+    points = [Point(x, y) for x, y in linestring.coords]
+    if len(points) < 2:
+        return MultiLineString(linestring)
+    crossing_index = None
+    crossing_lat = None
+    crossing_lon = [None, None]
+    for i, (p1, p2) in enumerate(zip(points[:-1],points[1:])):
+        if abs(p1.x - p2.x) > 180:
+            crossing_index = i + 1
+            # Calculate crossing points at -180 and +180 longitude.
+            if p1.x > p2.x:
+                dist_to_crossing = 180 - p1.x
+                total_dist = (180 - p1.x) + (180 + p2.x)
+                crossing_lon = [180, -180]
+            else:
+                dist_to_crossing = p1.x - (-180)
+                total_dist = (p1.x - (-180)) + (180 - p2.x)
+                crossing_lon = [-180, 180]
+            if total_dist == 0:
+                crossing_lat = p1.y
+            else:
+                frac_dist = dist_to_crossing / total_dist
+                crossing_lat = p1.y + frac_dist * (p2.y - p1.y)
+            break
+    if crossing_index is None:
+        # No crossing was found. Return a single part MultiLineString.
+        return MultiLineString([linestring])
+
+    # Add crossing point to both parts of the split LineString.
+    parts = [
+        LineString([
+            *points[:crossing_index],
+            Point(crossing_lon[0], crossing_lat),
+        ]),
+        LineString([
+            Point(crossing_lon[1], crossing_lat),
+            *points[crossing_index:],
+        ]),
+    ]
+    return MultiLineString(parts)

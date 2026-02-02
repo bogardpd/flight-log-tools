@@ -45,6 +45,12 @@ if __name__ == "__main__":
         type=str,
     )
 
+    # update-routes
+    parser_update_routes = subparsers.add_parser(
+        "update-routes",
+        help="Manually refresh routes layer",
+    )
+
     # Parse arguments
     args = parser.parse_args()
     match args.command:
@@ -56,5 +62,7 @@ if __name__ == "__main__":
             flt.import_recent()
         case "parse-bcbp":
             flt.parse_bcbp(args.bcbp_text)
+        case "update-routes":
+            flt.update_routes()
         case _:
             print("No command provided. See --help for commands.")
