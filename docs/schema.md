@@ -84,7 +84,8 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `fid`  | INT (64 bit) | Primary key for the flight record. |
 | `departure_utc` | DATETIME | UTC departure time for the flight. Prefer gate out time over wheels off (up) time. Prefer actual time over estimated time over scheduled time. |
 | `arrival_utc` | DATETIME | *Optional.* UTC arrival time for the flight. Prefer gate in time over wheels on (down) time. Prefer actual time over estimated time over scheduled time. |
-| `next_fid` | INT (64 bit) | *Optional.* The `fid` of a flight following this flight after a layover. Leave null if a layover does not follow this flight. Used to avoid double-counting visits to airports during layovers. |
+| `trip_fid` | INT (64 bit) | Foreign key referencing the trip on the [`trips`](#trips-no-geometry) table. |
+| `trip_section` | INT (64 bit) | Flights which follow each other after a layover should be assigned the same trip section of the same trip. Used to avoid [double-counting visits to airports during layovers](https://paulbogard.net/posts/counting-visits-to-airports-the-significance-of-trip-sections/). |
 | `purpose` | TEXT | `Business`, `Personal`, or `Mixed` |
 | `airline_fid` | INT (64 bit) | Foreign key referencing the marketing airline on the [`airlines`](#airlines-no-geometry) table. (See [Airline Types](#airline-types).) |
 | `flight_number` | TEXT | The marketing airline's flight number for the flight. (See [Airline Types](#airline-types).) |
@@ -119,3 +120,15 @@ The `routes` table contains great circle geometry for routes between pairs of ai
 | `destination_airport_fid` | INT (64 bit) | Foreign key referencing the destination airport on the [`airports`](#airports-point) table. |
 | `flight_count` | INT (64 bit) | Number of flights flown in this direction of this route. |
 | `distance_mi` | INT (64 bit) | Geodesic distance of this route in miles. |
+
+### trips (No Geometry)
+
+The `trips` table contains records for trips that flights belong to.
+
+| Column | Data Type | Description |
+|--------|-----------|-------------|
+| `fid`  | INT (64 bit) | Primary key for the route record. |
+| `name` | TEXT | Name of the trip. |
+| `start_date` | DATE | Start date of the trip in the local time zone of the departure location.
+| `end_date` | DATE | End date of the trip in the local time zone of the trip completion location.
+| `comments` | TEXT | *Optional.* Comments about the trip. |
