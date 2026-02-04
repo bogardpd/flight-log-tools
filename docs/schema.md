@@ -100,9 +100,9 @@ Individual flights may or may not have geometry (e.g., older flights without kno
 | `distance_mi` | INT (64 bit) | *Optional.* Distance of the flight in miles. Includes taxiing (ground) distance when available.
 | `aircraft_name` | TEXT | *Optional.* Name of the specific aircraft operating the flight (e.g. `Salmon-Thirty-Salmon II`). |
 | `boarding_pass_data` | TEXT | *Optional.* Boarding pass data string in IATA BCBP format. |
-| `fa_flight_id` | TEXT | *Optional.* FlightAware AeroAPI ID string. |
 | `fh_id` | INT (64 bit) | *Optional.* Flight Historian flight record ID. |
 | `geom_source` | TEXT | *Optional.* Source of geometry data for this flight (e.g. `FlightAware`, `GPS`).
+| `fa_flight_id` | TEXT | *Optional.* FlightAware AeroAPI ID string. |
 | `fa_json` | TEXT | *Optional.* Response string from AeroAPI flight lookup, in JSON format.
 | `comments` | TEXT | *Optional.* Comments about the flight. |
 
