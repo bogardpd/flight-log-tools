@@ -76,6 +76,7 @@ def append_flights(record_gdf):
     print(
         f"Appended {len(record_gdf)} flights(s) to '{layer}' in {flight_log}."
     )
+    update_routes()
 
 def find_aircraft_type_fid(code):
     """Finds an aircraft_type fid by ICAO or IATA code."""
