@@ -71,16 +71,14 @@ Create a new flight (or new flights) in the flight log.
 
 - `--bcbp <bcbp_text>`: Parse a string coded in the IATA Bar-Coded Boarding Pass (BCBP) format, and add the flight it represents to the log.
 
-    > [!TIP]
-    > You can get this string by scanning the 2-D barcode on a boarding pass with a barcode reader app.
+    You can get this string by scanning the 2-D barcode on a boarding pass with a barcode reader app.
 
     **Example:**
     ```bash
     python -m flight_log_tools add flight --bcbp "M1DOE/JOHN            EABC123 BOSJFKB6 0717 345P014C0010 147>3180 M6344BB6              29279          0 B6 B6 1234567890          ^108abcdefgh"
     ```
 
-    > [!IMPORTANT]
-    > Since BCBP data contains spaces, be sure to place the BCBP string in quotes. Do not trim trailing spaces from the string, as spaces have meaning in the BCBP format.
+    Since BCBP data contains spaces, be sure to place the BCBP string in quotes. Do not trim trailing spaces from the string, as spaces have meaning in the BCBP format.
 
 - `--fa-flight-id <fa_flight_id>`: Look up a flight on [AeroAPI](https://www.flightaware.com/commercial/aeroapi/) by `fa_flight_id` and add it to the flight log.
 
@@ -98,7 +96,7 @@ Create a new flight (or new flights) in the flight log.
 
 - `--recent`: Add recent flights from [Flight Historian](https://www.flighthistorian.com).
 
-    This looks up all flights from Flight Historian within the last 10 days, and adds them if they have not already been added. Flight data is pulled from
+    This looks up all flights from Flight Historian within the last 10 days, and adds them if they have not already been added.
 
     **Example:**
     ```bash
