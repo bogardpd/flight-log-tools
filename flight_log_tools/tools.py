@@ -60,7 +60,20 @@ def import_recent():
 def parse_bcbp(bcbp_str):
     """Parses a Bar-Coded Boarding Pass string."""
     bp = BoardingPass(bcbp_str)
-    print(bp.raw, bp.valid)
+    if not bp.valid:
+        print("The boarding pass data is not valid.")
+        quit()
+    flight_dates = bp.flight_dates
+    for leg_index, leg in enumerate(bp.raw['legs']):
+        airline_iata = leg['operating_carrier'].strip()
+        flight_number = leg['flight_number'].strip()
+        orig_iata = leg['from_airport'].strip()
+        dest_iata = leg['to_airport'].strip()
+        print(
+            f"Leg {leg_index + 1}: {flight_dates[leg_index]} "
+            f"{airline_iata} {flight_number} "
+            f"{orig_iata} → {dest_iata}"
+        )
 
 def update_routes():
     """Refreshes the routes table."""

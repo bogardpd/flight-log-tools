@@ -1,5 +1,7 @@
 """Tools for interacting with boarding passes."""
 
+from datetime import datetime, date, timedelta
+
 _BCBP_FIELDS = {
     "mandatory_unique": [
         # 1. Format Code
@@ -116,6 +118,46 @@ class BoardingPass():
 
     def __str__(self):
         return self.bcbp_str.replace(" ", "·")
+
+    @property
+    def flight_dates(self) -> list[date]:
+        """Gets a list of flight dates for all legs."""
+        leg_dates = []
+        for leg in self.raw['legs']:
+            try:
+                date_ordinal = int(leg['flight_date'])
+                if date_ordinal > 366 or date_ordinal < 1:
+                    leg_dates.append(None)
+                    continue
+            except ValueError:
+                leg_dates.append(None)
+                continue
+            # Assume flight is up to 3 days in the future, or else the
+            # most recent date matching this ordinal in the past.
+            latest_dt = datetime.now() + timedelta(days=3)
+            latest_dt_year = latest_dt.timetuple().tm_year
+            latest_date = latest_dt.date()
+            # Loop through years in reverse trying to find a good date.
+            # Searches 8 years since leap years can be up to 8 years
+            # apart.
+            for year in range(latest_dt_year, latest_dt_year-8, -1):
+                test_date = date(year, 1, 1) + timedelta(days=date_ordinal-1)
+                if test_date.year != year:
+                    # The ordinal was larger than the number of days
+                    # this year, probably due to no leap year.
+                    continue
+                if test_date > latest_date:
+                    # The date this year is more than three days in the
+                    # future.
+                    continue
+                # This is the most recent date that works.
+                leg_dates.append(test_date)
+                break
+            else: # Loop did not break.
+                # No valid date was found.
+                leg_dates.append(None)
+
+        return leg_dates
 
     def __parse(self):
         """Parses a boarding pass and returns a dict."""
