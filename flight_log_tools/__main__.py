@@ -9,40 +9,35 @@ if __name__ == "__main__":
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # add-fa-flight-id
-    parser_add_fa_flight_id = subparsers.add_parser(
-        "add-fa-flight-id",
-        help="Look up a flight by fa_flight_id and add it to the log"
+    # add
+    add_parser = subparsers.add_parser(
+        "add",
+        help="Add items to flight log",
     )
-    parser_add_fa_flight_id.add_argument(
-        "fa_flight_id",
-        metavar="fa-flight-id",
-        help="AeroAPI fa_flight_id",
+    add_subparsers = add_parser.add_subparsers(dest="entity", required=True)
+
+    # add flight
+    add_flight_parser = add_subparsers.add_parser(
+        "flight",
+    )
+    add_flight_source_group = add_flight_parser.add_mutually_exclusive_group(
+        required=True, # Set to false if we create GUI add flight option
+    )
+    add_flight_source_group.add_argument("--bcbp",
+        help="Add a flight from a BCBP-coded text string",
         type=str,
     )
-
-    # import-boarding-passes
-    parser_import_boarding_passes = subparsers.add_parser(
-        "import-boarding-passes",
-        help="Import digital boarding passes from import folder",
-    )
-
-    # import-recent
-    parser_import_recent = subparsers.add_parser(
-        "import-recent",
-        help="Import recent flights from Flight Historian",
-    )
-
-    # parse-bcbp
-    parser_parse_bcbp = subparsers.add_parser(
-        "parse-bcbp",
-        help="Import Bar-Coded Boarding Pass text string",
-    )
-    parser_parse_bcbp.add_argument(
-        "bcbp_text",
-        metavar="bcbp-text",
-        help="BCBP text string",
+    add_flight_source_group.add_argument("--fa-flight-id",
+        help="Add a flight from an FlightAware fa_flight_id",
         type=str,
+    )
+    add_flight_source_group.add_argument("--pkpasses",
+        action="store_true",
+        help="Add flights from .pkpass files in the import folder"
+    )
+    add_flight_source_group.add_argument("--recent",
+        action="store_true",
+        help="Add recent flights from Flight Historian"
     )
 
     # update-routes
@@ -53,16 +48,21 @@ if __name__ == "__main__":
 
     # Parse arguments
     args = parser.parse_args()
-    match args.command:
-        case "add-fa-flight-id":
-            flt.add_fa_flight_id(args.fa_flight_id)
-        case "import-boarding-passes":
-            flt.import_boarding_passes()
-        case "import-recent":
-            flt.import_recent()
-        case "parse-bcbp":
-            flt.parse_bcbp(args.bcbp_text)
-        case "update-routes":
-            flt.update_routes()
-        case _:
-            print("No command provided. See --help for commands.")
+    if args.command == "add":
+        if args.entity == "flight":
+            if args.bcbp is not None:
+                flt.parse_bcbp(args.bcbp)
+            elif args.fa_flight_id is not None:
+                flt.add_fa_flight_id(args.fa_flight_id)
+            elif args.pkpasses:
+                flt.import_boarding_passes()
+            elif args.recent:
+                flt.import_recent()
+            else:
+                print("Invalid arguments provided. See --help for commands.")
+        else:
+            print("Invalid arguments provided. See --help for commands.")
+    elif args.command == "update-routes":
+        flt.update_routes()
+    else:
+        print("Invalid arguments provided. See --help for commands.")

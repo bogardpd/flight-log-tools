@@ -18,9 +18,13 @@ python -m pip install -e .
 
 ### Environment Variables
 
-This script interacts with a GeoPackage flight log database as described in the [schema](docs/schema.md). The path to this file must be set as an environment variable:
+This package interacts with a GeoPackage flight log database as described in the [schema](docs/schema.md). The path to this file must be set as an environment variable:
 
 ```FLIGHT_LOG_GEOPACKAGE_PATH=/path/to/flight_log.gpkg```
+
+This package has the ability to import files from a predefined import folder. The path to this folder must be set as an environment variable:
+
+```FLIGHT_LOG_IMPORT_PATH=/path/to/import/folder```
 
 Many of these scripts interact with [AeroAPI](https://www.flightaware.com/commercial/aeroapi/) to get flight data. You will need to get an AeroAPI API key and set it as an environment variable:
 
@@ -56,70 +60,50 @@ python -m flight_log_tools <command> --help
 
 ## Commands
 
-### `add-fa-flight-id`
+### `add flight`
 
-Looks up a flight on AeroAPI by `fa_flight_id` and adds it to the flight log.
-
-Usage:
-```bash
-python -m flight_log_tools add-fa-flight-id <fa-flight-id>
-```
-
-Example:
-
-```bash
-python -m flight_log_tools add-fa-flight-id UAL1234-1234567890-airline-0123
-```
-
-### `import-boarding-passes`
-
-Imports flight records by parsing airline boarding pass files and creating corresponding entries in the flight log GeoPackage.
-
-Typical use cases:
-
-* Processing saved Apple Wallet .pkpass boarding passes
-
-Usage:
-
-```bash
-python -m flight_log_tools import-boarding-passes
-```
-
-### `import-recent`
-
-Retrieves recent flights from the Flight Historian API and creates corresponding records in the local flight log.
-
-This command is intended to:
-
-* Pull newly completed flights
-* Avoid re-importing flights that already exist in the log
-
-Usage:
-
-```bash
-python -m flight_log_tools import-recent
-```
-
-### `parse-bcbp`
-
-Parses a string coded in the IATA Bar-Coded Boarding Pass (BCBP) format.
-
-> [!TIP]
-> You can get this string by scanning the 2-D barcode on a boarding pass with a barcode reader app.
-
-Usage:
-```bash
-python -m flight_log_tools parse-bcbp <bcbp-text>
-```
-
-Example:
-```bash
-python -m flight_log_tools parse-bcbp "M1DOE/JOHN            EABC123 BOSJFKB6 0717 345P014C0010 147>3180 M6344BB6              29279          0 B6 B6 1234567890          ^108abcdefgh"
-```
+Create a new flight (or new flights) in the flight log.
 
 > [!IMPORTANT]
-> Since BCBP data contains spaces, be sure to place the BCBP string in quotes.
->
+> Flight data is pulled from [AeroAPI](https://www.flightaware.com/commercial/aeroapi/), so an API key must be set in [environment variables](#environment-variables).
+
+#### Options (mutually exclusive)
+
+- `--bcbp <bcbp_text>`: Parse a string coded in the IATA Bar-Coded Boarding Pass (BCBP) format, and add the flight it represents to the log.
+
+    > [!TIP]
+    > You can get this string by scanning the 2-D barcode on a boarding pass with a barcode reader app.
+
+    **Example:**
+    ```bash
+    python -m flight_log_tools add flight --bcbp "M1DOE/JOHN            EABC123 BOSJFKB6 0717 345P014C0010 147>3180 M6344BB6              29279          0 B6 B6 1234567890          ^108abcdefgh"
+    ```
+
+    > [!IMPORTANT]
+    > Since BCBP data contains spaces, be sure to place the BCBP string in quotes. Do not trim trailing spaces from the string, as spaces have meaning in the BCBP format.
+
+- `--fa-flight-id <fa_flight_id>`: Look up a flight on [AeroAPI](https://www.flightaware.com/commercial/aeroapi/) by `fa_flight_id` and add it to the flight log.
+
+    **Example:**
+    ```bash
+    python -m flight_log_tools add flight --fa-flight-id UAL1234-1234567890-airline-0123
+    ```
+
+- `--pkpasses`: Fetch all PKPass (Apple Wallet) files from the [import folder](#environment-variables) and add them to the flight log.
+
+    **Example:**
+    ```bash
+    python -m flight_log_tools add flight --pkpasses
+    ```
+
+- `--recent`: Add recent flights from [Flight Historian](https://www.flighthistorian.com).
+
+    This looks up all flights from Flight Historian within the last 10 days, and adds them if they have not already been added. Flight data is pulled from
+
+    **Example:**
+    ```bash
+    python -m flight_log_tools add flight --recent
+    ```
 
 ### `update-routes`
 
@@ -128,8 +112,7 @@ Updates the routes table based on all routes present in the flights table. Gener
 > [!WARNING]
 > This will overwrite the routes table, including removing routes that no longer have flights. Do not manually edit the routes table, as any edits will be lost when routes are updated.
 
-Usage:
-
+**Example:**
 ```bash
 python -m flight_log_tools update-routes
 ```
