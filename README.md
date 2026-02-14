@@ -69,7 +69,7 @@ Create a new flight (or new flights) in the flight log.
 
 #### Options (mutually exclusive)
 
-- `--bcbp <bcbp_text>`: Parse a string coded in the IATA Bar-Coded Boarding Pass (BCBP) format, and add the flight it represents to the log.
+- `--bcbp <bcbp_text>`: Parse a string coded in the IATA Bar-Coded Boarding Pass (BCBP) format, and add the flight(s) it represents to the log.
 
     You can get this string by scanning the 2-D barcode on a boarding pass with a barcode reader app.
 
