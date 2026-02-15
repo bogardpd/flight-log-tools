@@ -1,9 +1,13 @@
 """Functions for CLI commands."""
 
 import os
-import requests
+import sys
+from zoneinfo import ZoneInfo
 
+import requests
 import geopandas as gpd
+from dateutil import parser
+from tabulate import tabulate
 
 from flight_log_tools.aeroapi import AeroAPIWrapper
 from flight_log_tools.boarding_pass import BoardingPass
@@ -22,13 +26,42 @@ def add_flight_number(airline, flight_number):
         if record is not None and record['icao_code'] is not None:
             airline = record['icao_code']
     ident = f"{airline}{flight_number}"
-    print(f"Looking up {ident}")
+    print(f"Looking up {ident}:")
     aw = AeroAPIWrapper()
     flights = aw.get_flights_ident(ident, "designator")
-    print(flights)
+    if len(flights) == 0:
+        print("No matching flights found.")
+        sys.exit(0)
+    flights = sorted(flights, key=lambda f: f['scheduled_out'], reverse=True)
+    table = [
+        [
+            i + 1,
+            f['ident'],
+            _dt_str_tz(f['scheduled_out'], f['origin']['timezone']),
+            f['origin']['code_iata'] or f['origin']['code'],
+            f['destination']['code_iata'] or f['destination']['code'],
+            f['progress_percent'],
+        ]
+        for i, f in enumerate(flights)
+    ]
+    print(tabulate(table,
+        headers=["Row", "Ident", "Departure", "Orig", "Dest", "Progress %"],
 
-    # TODO: Show table of flights and have user select one.
-
+    ))
+    selected_flight = None
+    while selected_flight is None:
+        row = input("Select a row number (or Q to quit): ")
+        if row.upper() == "Q":
+            sys.exit(0)
+        try:
+            row_index = int(row) - 1
+            if row_index < 0:
+                print("Invalid row selection.")
+                continue
+            selected_flight = flights[row_index]
+        except IndexError, ValueError:
+            print("Invalid row selection.")
+    print(selected_flight)
 
 
 def import_boarding_passes():
@@ -95,3 +128,9 @@ def parse_bcbp(bcbp_str):
 def update_routes():
     """Refreshes the routes table."""
     fl.update_routes()
+
+def _dt_str_tz(dt_str, tz):
+    """Converts a datetime string into local time."""
+    dt = parser.isoparse(dt_str)
+    dt_tz = dt.astimezone(ZoneInfo(tz))
+    return dt_tz.strftime("%a %d %b %Y %H:%M %Z")

@@ -59,7 +59,6 @@ if __name__ == "__main__":
 
     # Parse arguments
     args = parser.parse_args()
-    print(args)
     if args.command == "add":
         if args.entity == "flight":
             if args.bcbp is not None:

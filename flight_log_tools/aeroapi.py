@@ -94,8 +94,8 @@ class AeroAPIWrapper:
         # Create record.
         record = {
             'geometry': geom_mls,
-            'departure_utc': self.__dep_utc(flight),
-            'arrival_utc': self.__arr_utc(flight),
+            'departure_utc': self.dep_utc(flight),
+            'arrival_utc': self.arr_utc(flight),
             'flight_number': flight['flight_number'],
             'origin_airport_fid': fl.find_airport_fid(
                 flight['origin']['code']
@@ -196,7 +196,7 @@ class AeroAPIWrapper:
             seconds=self.wait_time
         )
 
-    def __arr_utc(self, flight_dict):
+    def arr_utc(self, flight_dict):
         """Gets the actual arrival time of a flight."""
         if flight_dict['actual_in'] is None:
             # Flights diverted to a different airport use estimated_in.
@@ -206,7 +206,7 @@ class AeroAPIWrapper:
                 return None
         return self.format_time(isoparse(flight_dict['actual_in']))
 
-    def __dep_utc(self, flight_dict):
+    def dep_utc(self, flight_dict):
         """Gets the actual departure time of a flight."""
         if flight_dict['actual_out'] is None:
             return None
