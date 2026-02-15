@@ -58,11 +58,5 @@ if __name__ == "__main__":
                 flt.import_boarding_passes()
             elif args.recent:
                 flt.import_recent()
-            else:
-                print("Invalid arguments provided. See --help for commands.")
-        else:
-            print("Invalid arguments provided. See --help for commands.")
     elif args.command == "update-routes":
         flt.update_routes()
-    else:
-        print("Invalid arguments provided. See --help for commands.")
