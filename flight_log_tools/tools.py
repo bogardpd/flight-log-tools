@@ -14,6 +14,23 @@ def add_fa_flight_id(ident):
     aw = AeroAPIWrapper()
     aw.add_flight(ident)
 
+def add_flight_number(airline, flight_number):
+    """Gets info for a flight number and logs the flight."""
+    # If airline is IATA, try to look up ICAO.
+    if len(airline) == 2:
+        record = fl.find_airline_by_code(airline)
+        if record is not None and record['icao_code'] is not None:
+            airline = record['icao_code']
+    ident = f"{airline}{flight_number}"
+    print(f"Looking up {ident}")
+    aw = AeroAPIWrapper()
+    flights = aw.get_flights_ident(ident, "designator")
+    print(flights)
+
+    # TODO: Show table of flights and have user select one.
+
+
+
 def import_boarding_passes():
     """Imports digital boarding passes."""
     print("Importing digital boarding passes...")

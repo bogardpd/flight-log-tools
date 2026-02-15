@@ -110,6 +110,30 @@ def find_aircraft_type_fid(code):
     )
     return None
 
+def find_airline_by_code(code):
+    """Finds an airline fid by ICAO or IATA code."""
+    layer = "airlines"
+    airlines = gpd.read_file(
+        flight_log,
+        layer=layer,
+        engine="pyogrio",
+        fid_as_index=True
+    )
+    # Filter out defunct airlines. This is helpful in situations where
+    # current airlines use the same codes as an old airline (for
+    # example, the current PSA airlines and the defunct Comair both use
+    # the IATA code 'OH'.)
+    airlines = airlines[~airlines['is_defunct']]
+
+    for code_type in ['icao_code', 'iata_code']:
+        # Search for matching codes.
+        matching_code = airlines[airlines[code_type] == code]
+        if len(matching_code) == 1:
+            airline = matching_code.iloc[0].to_dict()
+            airline['fid'] = int(matching_code.index[0])
+            return airline
+    return None
+
 def find_airline_fid(code):
     """Finds an airline fid by ICAO or IATA code."""
     layer = "airlines"

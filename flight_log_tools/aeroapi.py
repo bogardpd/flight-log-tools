@@ -124,6 +124,24 @@ class AeroAPIWrapper:
         gdf = gpd.GeoDataFrame([record], geometry='geometry', crs="EPSG:4326")
         fl.append_flights(gdf)
 
+    def get_flights_ident(self, ident, ident_type=None):
+        """Gets flights matching an ident."""
+        headers = {'x-apikey': self.api_key}
+        url = f"{self.server}/flights/{ident}"
+        params = {'ident_type': ident_type}
+        self.wait()
+        response = requests.get(
+            url,
+            headers=headers,
+            params=params,
+            timeout=self.timeout,
+        )
+        print(f"🌐 GET {response.url}")
+        response.raise_for_status()
+        json_response = response.json()
+        return json_response['flights']
+
+
     def format_time(self, time_val):
         """Format time as ISO 8601."""
         if time_val is None:

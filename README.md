@@ -87,6 +87,15 @@ Create a new flight (or new flights) in the flight log.
     python -m flight_log_tools add flight --fa-flight-id UAL1234-1234567890-airline-0123
     ```
 
+- `--number <airline_code> <flight_number>`: Look up an airline and flight number on [AeroAPI](https://www.flightaware.com/commercial/aeroapi/) and add it to the flight log.
+
+  To reduce ambiguity, ICAO airline codes (three letter codes, like `AAL`) are preferred. However, this will attempt to look up IATA airline codes (two character codes, like `AA`).
+
+  **Example:**
+    ```bash
+    python -m flight_log_tools add flight --number AAL 1234
+    ```
+
 - `--pkpasses`: Fetch all PKPass (Apple Wallet) files from the [import folder](#environment-variables) and add them to the flight log.
 
     **Example:**

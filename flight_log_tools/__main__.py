@@ -25,10 +25,21 @@ if __name__ == "__main__":
     )
     add_flight_source_group.add_argument("--bcbp",
         help="Add a flight from a BCBP-coded text string",
+        metavar="BCBP_TEXT",
         type=str,
     )
     add_flight_source_group.add_argument("--fa-flight-id",
         help="Add a flight from an FlightAware fa_flight_id",
+        type=str,
+    )
+    add_flight_source_group.add_argument("--number",
+        dest="flight_number",
+        help=(
+            "Add a flight from an airline code (ICAO preferred) and "
+            "flight number"
+        ),
+        nargs=2,
+        metavar=("AIRLINE_CODE", "FLIGHT_NUMBER"),
         type=str,
     )
     add_flight_source_group.add_argument("--pkpasses",
@@ -48,12 +59,15 @@ if __name__ == "__main__":
 
     # Parse arguments
     args = parser.parse_args()
+    print(args)
     if args.command == "add":
         if args.entity == "flight":
             if args.bcbp is not None:
                 flt.parse_bcbp(args.bcbp)
             elif args.fa_flight_id is not None:
                 flt.add_fa_flight_id(args.fa_flight_id)
+            elif args.flight_number is not None:
+                flt.add_flight_number(*args.flight_number)
             elif args.pkpasses:
                 flt.import_boarding_passes()
             elif args.recent:
