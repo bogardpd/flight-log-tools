@@ -687,7 +687,7 @@ def split_at_antimeridian(track_ls: LineString) -> MultiLineString:
     # Split the track at the indices.
     tracks = []
     starts = [0, *crossings]
-    ends = [*crossings, len(track_ls.coords)-1]
+    ends = [*crossings, len(track_ls.coords)]
     tracks = [
         track_ls.coords[start:end] for start, end in zip(starts, ends)
     ]
