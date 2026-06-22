@@ -6,18 +6,28 @@ PBFlightLog is a Python command-line interface (CLI) tool for managing a persona
 
 ### Installation
 
-Navigate to the module's folder and install it with pip:
+Navigate to the module's folder and install it with pip or pipx:
 
 ```bash
 cd path/to/module
 python -m pip install .
 ```
 
-If you want to allow the scripts to be editable after install, perform a pip editable installation instead:
+```bash
+cd path/to/module
+pipx install .
+```
+
+If you want to allow the scripts to be editable after install, perform a pip or pipx editable installation instead:
 
 ```bash
 cd path/to/module
 python -m pip install -e .
+```
+
+```bash
+cd path/to/module
+pipx install --editable .
 ```
 
 After installation, the `pbflightlog` command is available on the command line.
